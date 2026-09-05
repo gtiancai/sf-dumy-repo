@@ -17,6 +17,7 @@ public class HelloWorld {
     private static String getTimeOfDay() {
         Integer hour = DateTime.now().hour();
         if (hour < 12) {
+            System.debug('*** hour: ' + hour);
             return 'morning';
         } else if (hour < 18) {
             return 'afternoon';
