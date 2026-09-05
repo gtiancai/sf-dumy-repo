@@ -13,4 +13,15 @@ public class HelloWorld {
         System.debug(a + ' + ' + b + ' = ' + (a + b));
         return a + b;
     }
+
+    private static String getTimeOfDay() {
+        Integer hour = DateTime.now().hour();
+        if (hour < 12) {
+            return 'morning';
+        } else if (hour < 18) {
+            return 'afternoon';
+        } else {
+            return 'evening';
+        }
+    }
 }
