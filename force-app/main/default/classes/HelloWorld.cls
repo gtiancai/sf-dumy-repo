@@ -9,6 +9,9 @@ public class HelloWorld {
         return greeting + ' Good ' + timeOfDay + '!';
     }
 
+    public static Integer minusNumbers(Integer a, Integer b) {
+        System.debug(a + ' - ' + b + ' = ' + (a - b));
+        return a - b;
     public static Integer addNumbers(Integer a, Integer b) {
         System.debug(a + ' + ' + b + ' = ' + (a + b));
         return a + b;
