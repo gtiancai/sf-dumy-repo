@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Active__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>OMNI-70733 - Rules take effect only when active. Imports default to FALSE; bulk-activate deliberately as the release switch. Deactivate instead of delete to keep audit history.</description>
+    <inlineHelpText>Only active rules are loaded by SCF/Apex</inlineHelpText>
+    <label>Is Active</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

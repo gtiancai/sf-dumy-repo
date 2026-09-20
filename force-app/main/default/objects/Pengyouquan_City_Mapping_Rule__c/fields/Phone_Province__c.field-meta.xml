@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Phone_Province__c</fullName>
+    <description>OMNI-70733 - Phone home-location province (Chinese, e.g. 广东). Sentinel &quot;All&quot; = province not checked (direct-tag rows).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Province, e.g. 广东. &quot;All&quot; = don&apos;t check</inlineHelpText>
+    <label>Phone Province</label>
+    <length>20</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

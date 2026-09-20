@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Phone_City__c</fullName>
+    <description>OMNI-70733 - Phone home-location city (Chinese, e.g. 广州). Sentinels: &quot;All&quot; = city not checked (direct-tag rows); &quot;Other&quot; = province-level fallback row or tag-default row.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>City, e.g. 广州. &quot;All&quot; = don&apos;t check; &quot;Other&quot; = province fallback</inlineHelpText>
+    <label>Phone City</label>
+    <length>20</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
