@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Target_City_Code__c</fullName>
+    <description>OMNI-70733 - Target own-city code this rule attributes the lead to (lowercase, e.g. guangzhou / changsha). Must be one of the ten own cities.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Lowercase own-city code, e.g. guangzhou</inlineHelpText>
+    <label>Target City Code</label>
+    <length>20</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

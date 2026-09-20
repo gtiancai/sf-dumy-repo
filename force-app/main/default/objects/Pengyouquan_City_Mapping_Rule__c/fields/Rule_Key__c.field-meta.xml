@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Rule_Key__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>OMNI-70733 - External id &quot;&lt;Etag_Keyword&gt;-&lt;Province&gt;-&lt;City&gt;&quot; (e.g. T5-广东-广州, T1s-All-All, T5-湖南-Other). Data Loader upserts on this field for idempotent rule imports.</description>
+    <externalId>true</externalId>
+    <inlineHelpText>&lt;tag&gt;-&lt;province&gt;-&lt;city&gt;, e.g. T5-广东-广州</inlineHelpText>
+    <label>Rule Key</label>
+    <length>60</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

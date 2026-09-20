@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Etag_Keyword__c</fullName>
+    <description>OMNI-70733 - Ad-targeting keyword embedded in the lead etag (e.g. T5, Tall, Tcs). Matched case-insensitively as &quot;-&lt;tag&gt;-&quot; against the etag; longer keyword wins on overlap. Tags exist only as data here — never hard-coded.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Tag keyword, e.g. T5 / Tall / Tcs</inlineHelpText>
+    <label>Etag Keyword</label>
+    <length>20</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
