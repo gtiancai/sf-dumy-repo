@@ -1,0 +1,622 @@
+<apex:page controller="BMS_ReservationEventAttendance" lightningStylesheets="true" tabStyle="opportunity" sidebar="false">
+    <style>
+        /* general */
+        #status_div {
+            position: absolute;
+            left: 0;top: 0;width: 100%;height: 100%;
+            background-color: #eee;border-radius: 5px;opacity: 0.8;
+            background-image: url('{!URLFOR('/img/loading.gif')}');
+            background-position: center center;
+            background-size: 18px;
+            background-repeat: no-repeat;
+            z-index: 999;
+        }
+        .hidden {display: none;}
+
+        /* block and cover */
+        .disabled-block {position: relative;}
+        .disabled-block input, .disabled-block select, .disabled-block textarea {color: #aaa; position: relative;}
+        #the_Block_Cover1, #the_Block_Cover2, #the_Block_Cover3 {
+            width: 100%; height: 100%; position: absolute; z-index: 99;left: 0;top: 0;
+        }
+
+        /* custom-message */
+        #custom_errorDiv_ep {font-weight: bold; color: #a60000; text-align: center; border-radius: .25rem;}
+
+        /* required sign */
+        .need-required {border-color: red;}
+        .required-sign {
+            position: relative;
+            /*float: left;*/
+            display: block;
+        }
+        .required-sign .required-div{position: absolute; background-color: #f00; height: 100%; width: 3px; left: -5px;    top: 0px;}
+        .field-empty-message {display: none; color: #d74c3b;}
+        .need-required .field-empty-message {display: block;}
+
+        .attendance-notes {width: 85%; height: 80px;}
+        
+        @media screen and (max-width: 1023px) {
+            #j_id0\:theCmp > div.bPageTitle > div > div > h1,
+            #j_id0\:thePageForm > div.bPageTitle > div > div > h1 {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            #j_id0\:thePageForm > div.bPageTitle > div > div {
+                width: 100% !important;
+            }
+
+            #j_id0\:thePageForm > div.bDescription {
+                display: none;
+            }
+
+            .label.ColvfLabelColTextWrap.last  {
+                display: block;
+            }
+
+            /* Responsive form layout - ensure each field is on a new line */
+            .bPageBlock table.detailList tbody,
+            .bPageBlock table.detailList tr {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .bPageBlock table.detailList tr {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+            }
+
+            .bPageBlock table.detailList tr:last-child {
+                border-bottom: none;
+            }
+
+            .bPageBlock table.detailList tr td,
+            .bPageBlock table.detailList tr th {
+                display: block !important;
+                width: 100% !important;
+                clear: both;
+                float: none !important;
+            }
+
+            /* Add left padding to all labelCol with vfLabelColTextWrap */
+            .labelCol.vfLabelColTextWrap {
+                padding-left: 0.5rem !important;
+            }
+
+            /* Hide empty label cells in all tables */
+            .bPageBlock td.labelCol.empty,
+            .bPageBlock th.labelCol.empty {
+                display: none !important;
+            }
+
+            .bPageBlock td.dataCol.empty,
+            .bPageBlock th.dataCol.empty {
+                display: none !important;
+            }
+
+            .bPageBlock table.detailList tr td.dataCol {
+                border: none !important;
+            }
+
+            .bPageBlock table.detailList tr td.dataCol input,
+            .bPageBlock table.detailList tr td.dataCol select,
+            .bPageBlock table.detailList tr td.dataCol textarea {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            #j_id0\:thePageForm\:thePageBlock\:resultSection > div.pbSubsection > table > tbody > tr {
+                margin-bottom: 0 !important;
+            }
+
+            #j_id0\:thePageForm\:thePageBlock\:theMainSection > div.pbSubsection > table > tbody > tr > td {
+
+            }
+
+            body .dataCol select, .slds-vf-scope .dataCol select {
+                margin-bottom: 0 !important;
+            }
+
+            #j_id0\:thePageForm\:thePageBlock\:resultSection > div.pbSubsection > table > tbody > tr > th {
+                padding-left: 0.5rem;
+            }
+
+            #j_id0\:thePageForm\:thePageBlock\:resultSection > div.pbSubheader.brandTertiaryBgr.first.tertiaryPalette > h3 {
+                font-size: 0.9rem;
+            }
+
+            #j_id0\:thePageForm\:thePageBlock\:inputNoteSection > div.pbSubheader.brandTertiaryBgr.tertiaryPalette > h3 {
+                font-size: 0.9rem;
+            }
+        }
+        @media screen and (max-width: 576px) {
+            .bPageBlock table.detailList tr {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+            }
+        }
+        @media screen and (min-width: 577px) {
+            .bPageBlock table.detailList tr {
+                display: grid !important;
+                grid-template-columns: 200px 1fr !important;
+            }
+        }
+
+        .bPageBlock table.detailList select,
+        .bPageBlock table.detailList input,
+        .bPageBlock table.detailList textarea{
+            width: 100%;
+            min-width:unset !important;
+        }
+        .bPageBlock table.detailList span.lookupInput{
+            display: block;
+        }
+        body .bPageBlock .detailList .labelCol{
+            width: auto !important;
+        }
+        .yf-mobile .bPageBlock{
+                margin: 1rem;
+        }
+        .yf-mobile #j_id0\:thePageForm\:thePageBlock\:j_id101\:bottom{
+                display: flex;
+                width: 100%;
+                justify-content: center;
+                gap: 1rem;
+                padding: 1rem;
+        }
+        .yf-mobile input[id$="saveShowUpBtn"]{
+                color: #fff !important;
+                background-color: rgba(1, 118, 211, 1)  !important;
+                border-color: rgba(1, 118, 211, 1) !important;
+                border-radius: .25rem !important;
+        }
+        .yf-mobile input[id$="saveShowUpBtn"]:hover{
+            background-color: rgb(2, 105, 189)  !important;
+        }
+        .yf-mobile input[id$="saveShowUpBtn"]:active{
+            background-color: rgb(0, 78, 142)  !important;
+        }
+        .yf-mobile input[id$="saveShowUpBtn"][disabled] {
+            background-color: rgb(241 241 241) !important;
+            color: rgb(185 185 185) !important;
+            border-color: rgb(241 241 241) !important;
+            cursor: not-allowed !important;
+        }
+    </style>
+    <apex:form id="thePageForm" styleClass="{!IF($User.UIThemeDisplayed == 'Theme4t','yf-mobile','')}">
+
+        <apex:sectionHeader title="{!appointment.Name}" subtitle="{!$Label.Appointment_Attendance_Subtitle}" />
+
+        <apex:pageMessages escape="false" id="errorMsg"/>
+        <div class="pbError" id="custom_errorDiv_ep" style="display: none;">
+            <div>{!$Label.Error_Invalid_Data}</div>
+            <div>{!$Label.Review_All_Error_Messages}</div>
+        </div>
+        <apex:pageBlock mode="edit" rendered="{!!hasOpportunityAndAccount}">
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Cancel" action="{!cancelShowup}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock mode="edit" id="thePageBlock" rendered="{!hasOpportunityAndAccount}">
+
+            <apex:pageBlockSection title="Input the result"
+                collapsible="false" id="resultSection">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Attendance Result"/>
+                    <apex:outputPanel >
+                        <span class="required-sign" id="attendance_result"><div class="required-div"></div>
+                        <apex:outputText value="{!showUpStatus}" rendered="{!presetResult}" id="presetResultText"/>
+                        <apex:selectList value="{!showUpStatus}"
+                            size="1" id="resultSectionInput" rendered="{!!presetResult}"
+                            onchange="pageMgr.checkAndShowRequiredFields(this.value);">
+                            <apex:selectOption itemValue="" itemLabel="--None--"/>
+                            <apex:selectOption itemValue="{!$Label.Attendance_Result_Show_Up}"
+                                itemLabel="{!$Label.Attendance_Result_Show_Up}"/>
+                            <apex:selectOption itemValue="{!$Label.Attendance_Result_No_Show}"
+                                itemLabel="{!$Label.Attendance_Result_No_Show}"/>
+                        </apex:selectList>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <div style="display: none;" id="theRequiredFieldSection">
+
+            <apex:pageBlockSection title="{!$Label.MSG_SHOW_UP_REQUIRED_VALUES}"
+                rendered="{!hasOpportunityAndAccount && hasEmptyMandatoryFields}"
+                collapsible="false" id="theMainSection">
+
+                <!-- for account fields -->
+                <apex:pageBlockSectionItem rendered="{!dummyAccount.Birthdate__c == null}">
+                    <apex:outputLabel value="{!$ObjectType.Account.Fields.Birthdate__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!dummyAccount.Birthdate__c}"
+                        id="inputAge"/>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!dummyAccount.English_First_Name__c == null}">
+                    <apex:outputLabel value="{!$ObjectType.Account.Fields.English_First_Name__c.Label}"/>
+                    <apex:outputPanel >
+                        <span>
+                            <apex:inputText value="{!dummyAccount.English_First_Name__c}"
+                            id="inputFirstName"/>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!dummyAccount.Gender__c == null}">
+                    <apex:outputLabel value="{!$ObjectType.Account.Fields.Gender__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!dummyAccount.Gender__c}"
+                            id="inputGender" />
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!dummyAccount.English_Last_Name__c == null}">
+                    <apex:outputLabel value="{!$ObjectType.Account.Fields.English_Last_Name__c.Label}"/>
+                    <apex:outputPanel >
+                        <span>
+                            <apex:inputText value="{!dummyAccount.English_Last_Name__c }"
+                                id="inputLastName"/>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!NOT(isRUOWN)}">
+                    <apex:outputLabel value="{!$ObjectType.Account.Fields.State_School__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!dummyAccount.State_School__c}"/>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <!-- for opportunity fields -->
+                <apex:pageBlockSectionItem rendered="{!currentOpportunity.Center__c==null}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.Center__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!currentOpportunity.Center__c}"
+                            id="inputCenter"/>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputField value="{!currentOpportunity.LeadSource}"
+                     rendered="{!OR(currentOpportunity.Marketing_Sub_Channel__c == null,currentOpportunity.MarketingChannel__c == null)}"
+                     id="inputLeadSource"/>
+
+                <apex:pageBlockSectionItem id="groupItem"
+                    rendered="{!OR(currentOpportunity.Marketing_Sub_Channel__c == null,currentOpportunity.MarketingChannel__c == null)}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.Marketing_Channel_Group__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:selectList value="{!currentOpportunity.Marketing_Channel_Group__c}"
+                            size="1"
+                            onchange="pageMgr.resetChannel(this.value);"
+                            id="marketGroupSelect">
+                            <apex:selectOptions value="{!marketGroupOptions}"/>
+                        </apex:selectList>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem id="channelItem"
+                    rendered="{!OR(currentOpportunity.Marketing_Sub_Channel__c == null,currentOpportunity.MarketingChannel__c == null)}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.MarketingChannel__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:selectList value="{!currentOpportunity.MarketingChannel__c}"
+                            size="1"
+                            onchange="pageMgr.resetSubChannel(this.value);"
+                            id="marketChannelSelect">
+                            <apex:selectOptions value="{!marketChannelOptions}"/>
+                        </apex:selectList>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem id="subChannelItem"
+                    rendered="{!OR(currentOpportunity.Marketing_Sub_Channel__c == null,currentOpportunity.MarketingChannel__c == null)}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.Marketing_Sub_Channel__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:selectList value="{!currentOpportunity.Marketing_Sub_Channel__c}"
+                            size="1"
+                            id="marketSubChannelSelect">
+                            <apex:selectOptions value="{!marketSubchannelOptions}"/>
+                        </apex:selectList>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!currentOpportunity.ProgramGroupInterested__c==null}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.ProgramGroupInterested__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!currentOpportunity.ProgramGroupInterested__c}"
+                            id="inputGroupInterest"/>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!currentOpportunity.Contact__c==null}">
+                    <apex:outputLabel value="{!$ObjectType.Opportunity.Fields.Contact__c.Label}"/>
+                    <apex:outputPanel >
+                        <span class="required-sign"><div class="required-div"></div>
+                        <apex:inputField value="{!currentOpportunity.Contact__c}"
+                            id="inputContact"/>
+                        <div class="field-empty-message">{!$Label.Required_Field_Message}</div>
+                        </span>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+            </apex:pageBlockSection>
+            </div>
+            <apex:pageBlockSection title="Input the notes"
+                collapsible="false" columns="1"
+                id="inputNoteSection">
+                <apex:outputField value="{!appointment.Notes__c}" label="Old Notes" styleClass="attendance-notes"/>
+                <apex:inputTextarea value="{!notes}" label="Notes" styleClass="attendance-notes" />
+            </apex:pageBlockSection>
+            <div id="status_div" style="display: none;"></div>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Save" action="{!saveShowUp}" id="saveShowUpBtn"  disabled="{!hasError}"
+                    onclick="if(pageMgr.checkIfRequiredFieldsEmpty()){return false;}else {pageMgr.showLoading();}" reRender="thePageForm"
+                    oncomplete="pageMgr.initRequiredSection(); pageMgr.hideLoading();" />
+                <apex:commandButton value="Cancel" action="{!cancelShowup}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <span class="hidden" id="group_channel_map">{!jsonGroupToChannelDependency}</span>
+        <span class="hidden" id="channel_subchannel_map">{!jsonChannelToSubChannelDependency}</span>
+    </apex:form>
+    <div id="the_Block_Cover1" style="display: none;"></div>
+    <div id="the_Block_Cover2" style="display: none;"></div>
+    <div id="the_Block_Cover3" style="display: none;"></div>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.DatetimePicker, 'jquery.1.10.2.min.js')}"/>
+    <script>
+        var j$ = jQuery.noConflict();
+
+        var pageMgr = {
+
+            groupMapping : null,
+            channelMapping : null,
+            chnannlOptions : null,
+            subchannelOptions : null,
+            baseOptionChannel : null,
+            baseOptionSubChannel : null,
+            hasRequiredFieldSection : undefined,
+            // The attendance result comes from the URL parameter and is displayed read only
+            presetResult : '{!presetResult}'.toLowerCase() == 'true',
+
+            resultSectionId : '{!$Component.thePageForm.thePageBlock.resultSection}',
+            inputNoteSection : '{!$Component.thePageForm.thePageBlock.inputNoteSection}',
+            resultSectionInputId : '{!$Component.thePageForm.thePageBlock.resultSection.resultSectionInput}',
+            theRequiredFieldSection : 'theRequiredFieldSection',
+            groupElemId : '{!$Component.thePageForm.thePageBlock.theMainSection.groupItem.marketGroupSelect}',
+            channelElemId : '{!$Component.thePageForm.thePageBlock.theMainSection.channelItem.marketChannelSelect}',
+            subchannelElemId : '{!$Component.thePageForm.thePageBlock.theMainSection.subChannelItem.marketSubChannelSelect}',
+            theMainSectionId : '{!$Component.thePageForm.thePageBlock.theMainSection}',
+            pageBlockId : '{!$Component.thePageForm.thePageBlock}',
+
+            showLoading : function() {
+                document.getElementById('status_div').style.display = 'block';
+            },
+
+            hideLoading : function() {
+                document.getElementById('status_div').style.display = 'none';
+            },
+
+            onSaveClick : function() {
+                if(this.checkIfRequiredFieldsEmpty()) {
+                    return false;
+                }
+            },
+
+            handleEmptyFieldMessage : function(hasEmptyFields) {
+                if(hasEmptyFields) {
+                    j$('#custom_errorDiv_ep').show();
+                }else {
+                    j$('#custom_errorDiv_ep').hide();
+                }
+            },
+
+            checkIfRequiredFieldsEmpty: function() {
+
+                var theRequiredFieldBlock = j$(document.getElementById(pageMgr.theMainSectionId));
+                var hasEmptyFields = false;
+
+                //check resut first
+                var $attendanceResult = j$('#attendance_result');
+                var attendanceResult = pageMgr.presetResult
+                    ? '{!JSENCODE(showUpStatus)}'
+                    : $attendanceResult.find('select').val();
+                var isShowUp = false;
+                if(attendanceResult == 'Show up') {
+                    isShowUp = true;
+                }
+
+                if(!attendanceResult) {
+                    hasEmptyFields = true;
+                    $attendanceResult.addClass('need-required');
+                }else {
+                    $attendanceResult.removeClass('need-required');
+                }
+
+                theRequiredFieldBlock.find('.required-sign').each(function(){
+                    var $this = j$(this);
+                    var $input = $this.find('input[type="text"]');
+                    var thisVal;
+                    if($input.length == 0) {
+                        $input = $this.find('select');
+                    }else {
+                        thisVal = $input.val();
+                        if($this.hasClass('required-number')
+                            && (thisVal || thisVal === 0)
+                            && !/^\d+(\.\d+)?$/.test(thisVal)) {
+                            //this field need number but user input non-number
+                            hasEmptyFields = true;
+                            $this.addClass('need-required');
+                            return true;
+                        }
+                    }
+
+                    if($input.length == 0) {
+                        //can not find input, skip
+                        return true;
+                    }
+
+                    if(isShowUp && !$input.val()) {
+                        hasEmptyFields = true;
+                        $this.addClass('need-required');
+                    }else {
+                        $this.removeClass('need-required');
+                    }
+                });
+
+                this.handleEmptyFieldMessage(hasEmptyFields);
+
+                return hasEmptyFields;
+            },
+
+            checkAndShowRequiredFields: function(attendanceResult) {
+
+                if(pageMgr.hasRequiredFieldSection === undefined) {
+                    var theRequiredFieldSection
+                        = document.getElementById(pageMgr.theMainSectionId);
+                    pageMgr.hasRequiredFieldSection = !!theRequiredFieldSection;
+                }
+
+                if(pageMgr.hasRequiredFieldSection && attendanceResult == 'Show up') {
+                    j$(document.getElementById(pageMgr.theRequiredFieldSection)).slideDown();
+                }else {
+                    j$(document.getElementById(pageMgr.theRequiredFieldSection)).slideUp();
+                }
+            },
+            getMappings : function(mappingName, mappingId) {
+                if(this[mappingName] == null) {
+                    var str = j$('#' + mappingId).text();
+                    try {
+                        this[mappingName] = j$.parseJSON(str);
+                    }catch(ex) {
+                        this[mappingName] = {};
+                    }
+                }
+                return this[mappingName];
+            },
+            resetChannel : function(elemValue) {
+                var allowedChannel = this.groupMapping[elemValue];
+                var defaultChannel = this.resetPicklistOptions(allowedChannel,
+                        this.channelElemId, this.baseOptionChannel);
+
+                this.resetSubChannel(defaultChannel);
+            },
+            resetSubChannel : function(elemValue) {
+                var allowedSubChannel = this.channelMapping[elemValue];
+                this.resetPicklistOptions(allowedSubChannel, this.subchannelElemId, this.baseOptionSubChannel);
+            },
+            resetPicklistOptions : function(listOptions, selectElemId, baseOptions) {
+
+                var i, j, k, q, ret = [], firstValue;
+                if(!listOptions) {
+                    listOptions = [];
+                }
+
+                for(i=0,j=baseOptions.length; i<j; i++) {
+                    for(k=0,q=listOptions.length; k<q; k++) {
+                        if(baseOptions[i]['label'] == listOptions[k]) {
+                            ret.push('<option value="' + baseOptions[i]['value']
+                                +'">' + baseOptions[i]['label'] + '</option>');
+                            if(firstValue === undefined) {
+                                firstValue = baseOptions[i]['value'];
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                j$(document.getElementById(selectElemId)).html(ret.join(''));
+
+                if(firstValue === undefined) {
+                    firstValue = '';
+                }
+
+                return firstValue;
+            },
+            initBaseOptions : function() {
+                this.baseOptionChannel = [];
+                j$(document.getElementById(pageMgr.channelElemId)).children().each(function() {
+                    pageMgr.baseOptionChannel.push({
+                        label : j$(this).text(),
+                        value : j$(this).val()
+                    });
+                });
+
+                this.baseOptionSubChannel = [];
+                j$(document.getElementById(pageMgr.subchannelElemId)).children().each(function() {
+                    pageMgr.baseOptionSubChannel.push({
+                        label : j$(this).text(),
+                        value : j$(this).val()
+                    });
+                });
+            },
+            initRequiredSection : function() {
+                pageMgr.checkAndShowRequiredFields(pageMgr.presetResult
+                    ? '{!JSENCODE(showUpStatus)}'
+                    : j$(document.getElementById(pageMgr.resultSectionInputId)).val());
+            },
+            initMappings : function() {
+                this.getMappings('groupMapping','group_channel_map');
+                this.getMappings('channelMapping','channel_subchannel_map');
+            }
+
+        };
+        pageMgr.initBaseOptions();
+        pageMgr.initMappings();
+        pageMgr.initRequiredSection();
+
+        setTimeout(function(){
+            var elem = document.getElementById(pageMgr.groupElemId);
+            if(elem) {
+                pageMgr.resetChannel(elem.value);
+            }
+
+            if('{!hasError}'.toLowerCase() == 'true') {
+                var idlist = [pageMgr.resultSectionId,
+                    pageMgr.theRequiredFieldSection, pageMgr.inputNoteSection];
+                var i, j, $pbBody;
+                for(i=0, j=idlist.length; i<j; i++) {
+                    $pbBody = j$(document.getElementById(idlist[i]));
+                    $pbBody.addClass('disabled-block');
+                    j$('#the_Block_Cover' + (i + 1))
+                    .appendTo(
+                        $pbBody
+                    ).show();
+                }
+                return;
+            }
+
+        }, 10);
+
+        //set the annoying focus on load to empty
+        setFocus = setFocusOnLoad = function() {};
+
+    </script>
+
+</apex:page>
