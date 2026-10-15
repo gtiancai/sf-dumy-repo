@@ -1,0 +1,61 @@
+<apex:page controller="HealthSafetyMonthlyCtl"
+    sidebar="false"
+    docType="html-5.0"
+    standardStylesheets="false"
+    showHeader="false"
+    applyHtmlTag="false"
+>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
+    </head>
+    <style type="text/css">
+          html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+          iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+          }
+    </style>
+    <script type="text/javascript">
+        Visualforce.remoting.timeout = 120000;
+        const cosBucketUrl = '{!cosBucketUrl}'
+        const SFBaseUrl = '{!SFBaseUrl}'
+
+        let omniWebEl
+
+        const searchParams = new URLSearchParams(window.location.search)
+        const contentOrigin = searchParams.get('contentOrigin') || cosBucketUrl
+        const ts = (window.location.search ? '&' : '?') + 'ts=' + Date.now() + '&SFBaseUrl=' + SFBaseUrl
+        const contentSrc = `${contentOrigin}${window.location.search}${ts}`
+
+        window.onload = () => {
+          omniWebEl = document.getElementById("omniWeb")
+          if (omniWebEl) {
+            omniWebEl.src = contentSrc
+          }
+        }
+
+        window.addEventListener("message", event => {
+          if (contentOrigin.startsWith(event.origin)) {
+            if (event.data?.type === 'remoteActionRequest') {
+              const { id, type, data: { functionName, args } } = event.data
+              const functionPath = functionName.split('.')
+              window[functionPath[0]][functionPath[1]].call(this, ...(args || []), (result, event) => {
+                omniWebEl.contentWindow.postMessage({
+                  id,
+                  type: 'remoteActionResponse',
+                  data: { result, event }
+                }, contentOrigin)
+              })
+            }
+          }
+        })
+    </script>
+    <apex:iframe id="omniWeb" width="100%" frameborder="0" scrolling="true" />
+</apex:page>
